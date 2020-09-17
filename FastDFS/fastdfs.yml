@@ -1,0 +1,24 @@
+version: '3.1'
+
+services:
+  fastdfs-tracker:
+    hostname: fastdfs-tracker
+    image: delron/fastdfs
+    container_name: fastdfs-tracker-docker
+    volumes:
+    - "${FASTDFS_DIR}/tracker:/var/fdfs"
+    restart: always
+    network_mode: "host"
+
+  fastdfs-storage:
+    hostname: fastdfs-storage
+    image: delron/fastdfs
+    container_name: fastdfs-storage-docker
+    environment:
+      - TRACKER_SERVER=${TRACKER_SERVER}
+    volumes:
+      - "${FASTDFS_DIR}/storage:/var/fdfs"
+    restart: always
+    network_mode: "host"
+    depends_on:
+      - fastdfs-tracker

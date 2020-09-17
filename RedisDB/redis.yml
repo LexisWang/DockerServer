@@ -1,0 +1,13 @@
+version: '3.1'
+
+services:
+  redis:
+    image: redis
+    container_name: redisdb
+    volumes:
+      - "${REDIS_DIR}/data:/data"
+      - "${REDIS_DIR}/config/redis.conf:/usr/local/etc/redis/redis.conf"
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass root
