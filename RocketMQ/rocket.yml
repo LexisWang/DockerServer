@@ -1,0 +1,58 @@
+version: '2'
+services:
+  namesrv:
+    image: foxiswho/rocketmq:4.7.0
+    mem_limit: 1024m
+    container_name: namesrv
+    command: ["sh","mqnamesrv"]
+    environment:
+      JAVA_OPT_EXT: "-Duser.home=/opt -Xms512M -Xmx512M -Xmn128m"
+    volumes:
+      - ./data/rocketmq/namesrv/logs:/opt/logs
+      - ./data/rocketmq/namesrv/store:/opt/store
+    ports:
+      - "9876:9876"
+  rocketmq-master:
+    user: root
+    image: foxiswho/rocketmq:4.7.0
+    mem_limit: 3072m
+    container_name: rocketmq-master
+    command: ["sh","mqbroker","-c","/etc/rocketmq/broker.conf","-n","namesrv:9876","autoCreateTopicEnable=true"]
+    environment:
+      JAVA_OPT_EXT: "-Duser.home=/opt -Xms512M -Xmx2048M -Xmn128m"
+    volumes:
+      - ./data/rocketmq/master/logs:/opt/logs
+      - ./data/rocketmq/master/store:/opt/store
+      - ./data/rocketmq/conf/master-broker.conf:/etc/rocketmq/broker.conf
+    ports:
+      - "10909:10909"
+      - "10911:10911"
+    depends_on:
+      - namesrv
+  rocketmq-slave:
+    user: root
+    image: foxiswho/rocketmq:4.7.0
+    mem_limit: 3072m
+    container_name: rocketmq-slave
+    command: ["sh","mqbroker","-c","/etc/rocketmq/broker.conf","-n","namesrv:9876","autoCreateTopicEnable=true"]
+    environment:
+      JAVA_OPT_EXT: "-Duser.home=/opt -Xms512M -Xmx2048M -Xmn128m"
+    volumes:
+      - ./data/rocketmq/slave/logs:/opt/logs
+      - ./data/rocketmq/slave/store:/opt/store
+      - ./data/rocketmq/conf/slave-broker.conf:/etc/rocketmq/broker.conf
+    ports:
+      - "10910:10909"
+      - "10912:10912"
+    depends_on:
+      - namesrv
+  rmqconsole:
+    image: styletang/rocketmq-console-ng
+    mem_limit: 1024m
+    container_name: rmqconsole
+    environment:
+      JAVA_OPTS: "-Drocketmq.namesrv.addr=namesrv:9876 -Dcom.rocketmq.sendMessageWithVIPChannel=false"
+    ports:
+      - "9999:8080"
+    depends_on:
+      - namesrv

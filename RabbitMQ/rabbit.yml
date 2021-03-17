@@ -10,7 +10,7 @@ services:
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     volumes:
       - "${RABBITMQ_DIR}:/var/lib/rabbitmq"
-    restart: always
+#    restart: always
     hostname: myRabbitmq
     ports:
       - "15672:15672"
